@@ -16,4 +16,4 @@ Change the directory to ``` frontend/171-final-frontend ``` and run:
 npm install
 npm run dev
 ```
-Then navigate to ```localhost:3000``` and the homepage should be visible.
+Then navigate to ```localhost:3000``` in your browser and the homepage should be visible.

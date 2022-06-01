@@ -1,12 +1,19 @@
-import { useState } from 'react';
-import { Button } from '@mui/material';
-import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { PredictionPage } from './PredictionPage';
+import { Home } from './home';
 
-function App() {
-
+const App = () => {
   return (
-    <Button variant='contained'>askjdhaskjdhjkasdkj</Button>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/">
+          <Route index element={<Home />} />
+
+          <Route path='prediction' element={<PredictionPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter >
   )
 }
 
