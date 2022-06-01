@@ -1,13 +1,15 @@
 import uvicorn
 import pickle
 import pandas as pd
+import numpy as np
 
 from typing import Final
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
-class County(BaseModel):
+class ModelInputs(BaseModel):
     state: str
     county: str
     population: int
@@ -17,15 +19,26 @@ class County(BaseModel):
 
 
 app = FastAPI()
-state_names: Final = pd.read_csv('us-counties-2020.csv')['state'].unique()
+origins = [
+    "http://localhost:3000",
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+state_names: Final = pd.read_csv('./us-counties-2020.csv')['state'].unique()
 with open("./packaged_model.pkl", "rb") as f:
-    model = pickle.load(f)
-
-
-@app.get('/')
-def index():
-    return {'message': 'This is the homepage of the API '}
+    NNmodel: Final = pickle.load(f)
+with open("./gdp_scaler.pkl", "rb") as f:
+    gdp_scaler: Final = pickle.load(f)
+with open("./population_scaler.pkl", "rb") as f:
+    population_scaler: Final = pickle.load(f)
 
 
 def encodeStateName(state_name: str):
@@ -38,20 +51,49 @@ def encodeStateName(state_name: str):
     return res_dct
 
 
-@app.get('/prediction')
-def get_prediction(data: County):
+def buildInput(data: ModelInputs) -> pd.DataFrame:
     received = dict(data)
     death_rate = data.deaths / data.population
     positivity_rate = data.cases / data.population
 
     del received['state']
-    model_input = pd.DataFrame.from_dict({
-        received.update(encodeStateName(data.state))
-    })
-    model_input['death_rate']
-    print(model_input)
+    received.update(encodeStateName(data.state))
 
+    model_input = pd.DataFrame(received, index=[0])
+    model_input['Death Rate'] = [death_rate]
+    model_input['Positivity Rate'] = [positivity_rate]
+
+    model_input.rename(
+        columns={'GDP': '2019 raw GDP', 'population': '2020 population'}, inplace=True)
+    model_input.drop(columns=['county', 'cases', 'deaths'], inplace=True)
+
+    print(model_input.columns)
+
+    model_input['2019 raw GDP'] = gdp_scaler.transform(
+        np.array(model_input['2019 raw GDP']).reshape(-1, 1))
+    model_input['2020 population'] = population_scaler.transform(
+        np.array(model_input['2020 population']).reshape(-1, 1))
+
+    return model_input
+
+
+@app.get('/')
+def index():
+    return {'message': 'This is the homepage of the API '}
+
+
+@app.post('/NNprediction')
+def get_nn_prediction(data: ModelInputs):
+    model_input = buildInput(data)
+    print(model_input)
+    y = NNmodel.predict(model_input)
+    print(f'predicted: {y}')
     return {'prediction': 'some name'}
+
+
+@app.get('/RegPrediction')
+def get_regression_prediction(data: ModelInputs):
+    model_input = buildInput(data)
 
 
 if __name__ == '__main__':
