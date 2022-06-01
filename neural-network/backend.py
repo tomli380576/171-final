@@ -33,12 +33,15 @@ app.add_middleware(
 
 
 state_names: Final = pd.read_csv('./us-counties-2020.csv')['state'].unique()
+
 with open("./packaged_model.pkl", "rb") as f:
     NNmodel: Final = pickle.load(f)
 with open("./gdp_scaler.pkl", "rb") as f:
     gdp_scaler: Final = pickle.load(f)
 with open("./population_scaler.pkl", "rb") as f:
     population_scaler: Final = pickle.load(f)
+with open("./y_scaler.pkl", "rb") as f:
+    y_scaler: Final = pickle.load(f)
 
 
 def encodeStateName(state_name: str):
@@ -86,9 +89,9 @@ def index():
 def get_nn_prediction(data: ModelInputs):
     model_input = buildInput(data)
     print(model_input)
-    y = NNmodel.predict(model_input)
-    print(f'predicted: {y}')
-    return {'prediction': 'some name'}
+    y = y_scaler.inverse_transform(NNmodel.predict(model_input).reshape(-1, 1))
+    print(f'predicted: {float(y)}')
+    return float(y)
 
 
 @app.get('/RegPrediction')
