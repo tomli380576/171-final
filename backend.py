@@ -32,15 +32,16 @@ app.add_middleware(
 )
 
 
-state_names: Final = pd.read_csv('./us-counties-2020.csv')['state'].unique()
+state_names: Final = pd.read_csv(
+    './neural-network/us-counties-2020.csv')['state'].unique()
 
-with open("./packaged_model.pkl", "rb") as f:
+with open("./neural-network/packaged_model.pkl", "rb") as f:
     NNmodel: Final = pickle.load(f)
-with open("./gdp_scaler.pkl", "rb") as f:
+with open("./neural-network/gdp_scaler.pkl", "rb") as f:
     gdp_scaler: Final = pickle.load(f)
-with open("./population_scaler.pkl", "rb") as f:
+with open("./neural-network/population_scaler.pkl", "rb") as f:
     population_scaler: Final = pickle.load(f)
-with open("./y_scaler.pkl", "rb") as f:
+with open("./neural-network/y_scaler.pkl", "rb") as f:
     y_scaler: Final = pickle.load(f)
 
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Stack, Button, TextField, Box, Select, MenuItem, FormControl, InputLabel, Paper, Typography } from "@mui/material";
+import { Stack, Button, TextField, Box, Select, MenuItem, FormControl, InputLabel, Typography } from "@mui/material";
 import { useState } from "react";
 import { ModelInput, getNNPrediction } from './modelAPIs.service';
 import { stateNames } from './stateNames';
@@ -17,12 +17,15 @@ export const PredictionPage: React.FC = () => {
 
     const [inputs, setInputs] = useState<ModelInput>(defaultInputs);
     const [selectedState, setSelectedState] = useState<string>('California');
-    const [NNResult, setNNResult] = useState<number| null>(null);
+    const [NNResult, setNNResult] = useState<number | null>(null);
 
     function handleChange(key: string, value: string | number) {
-        inputs[key] = value;
-        console.log(inputs)
-        setInputs(inputs);
+        let newInputs: ModelInput = {
+           ...inputs
+        };
+        newInputs[key] = value;
+        console.log(newInputs)
+        setInputs(newInputs);
     }
 
     return (
@@ -46,7 +49,7 @@ export const PredictionPage: React.FC = () => {
                                 setSelectedState(e.target.value)
                             }}
                         >
-                            {stateNames.map(name => <MenuItem value={name}>{name}</MenuItem>)}
+                            {stateNames.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
                         </Select>
                     </FormControl>
                     <TextField type="number" id="outlined-basic" label="Population" variant="outlined" required={true} onChange={(e) => {
@@ -75,10 +78,13 @@ export const PredictionPage: React.FC = () => {
                     <Button variant='contained'>Predict with Linear Regression</Button>
                 </Stack>
                 :
-                <Stack>
+                <Stack spacing={5}>
                     <Typography variant='h5'>
                         The model result is {NNResult!.toFixed(2)}% change in GDP
                     </Typography>
+                    <Button variant='outlined' onClick={() => { setNNResult(null) }}>
+                        Reset
+                    </Button>
                 </Stack>
             }
         </Box>
