@@ -89,13 +89,12 @@ def index():
 @app.post('/NNprediction')
 def get_nn_prediction(data: ModelInputs):
     model_input = buildInput(data)
-    print(model_input)
     y = y_scaler.inverse_transform(NNmodel.predict(model_input).reshape(-1, 1))
     print(f'predicted: {float(y)}')
     return float(y)
 
 
-@app.get('/RegPrediction')
+@app.post('/RegPrediction')
 def get_regression_prediction(data: ModelInputs):
     model_input = buildInput(data)
 
