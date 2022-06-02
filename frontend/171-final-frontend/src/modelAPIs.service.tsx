@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-interface ModelInput {
+export interface ModelInput {
     state: string
     county: string
     population: number
@@ -9,8 +9,12 @@ interface ModelInput {
     GDP: number
 }
 
+export async function getNNPrediction(inputs: ModelInput): Promise<number> {
+    const response = axios.post('http://127.0.0.1:4000/NNprediction', inputs);
+    return (await response).data;
+}
 
-async function getPrediction(inputs: ModelInput): Promise<number> {
-    const response = axios.post('http://127.0.0.1:4000/prediction', { inputs });
+export async function getRegressionPrediction(inputs: ModelInput): Promise<number> {
+    const response = axios.post('http://127.0.0.1:4000/RegPrediction', inputs);
     return (await response).data;
 }
