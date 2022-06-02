@@ -3,7 +3,7 @@ import { Stack, Button, TextField, Box, Select, MenuItem, FormControl, InputLabe
 import { useState } from "react";
 import { ModelInput, getNNPrediction } from './modelAPIs.service';
 import { stateNames } from './stateNames';
-import { Yolo, Augusta } from "./sampleInputs";
+import { sampleInputs } from "./sampleInputs";
 
 export const PredictionPage: React.FC = () => {
 
@@ -17,13 +17,19 @@ export const PredictionPage: React.FC = () => {
     const [NNResult, setNNResult] = useState<number | null>(null);
 
     function buildModelInput(): ModelInput {
-        return {
+        const result = {
             state: selectedState,
             county: county,
             population: population,
             cases: cases,
             deaths: deaths,
             GDP: GDP
+        }
+        if (population === 0 || isNaN(population) || GDP === 0 || isNaN(GDP)) {
+            throw 'Both population and GDP cannot be 0 or empty';
+        }
+        else {
+            return result;
         }
     }
 
@@ -44,9 +50,10 @@ export const PredictionPage: React.FC = () => {
             height: '100vh',
         }}>
             {NNResult === null ?
-                <Stack direction='row' spacing={5}>
+                <Stack direction='row' spacing={10}>
+
                     <Stack direction='column' spacing={2} sx={{ width: 500 }}>
-                        <Typography variant='h5'>Enter County Data</Typography>
+                        <Typography variant='h5' mb={1}>Enter County Data</Typography>
                         <TextField
                             id="outlined-basic"
                             label="County Name"
@@ -96,20 +103,20 @@ export const PredictionPage: React.FC = () => {
                         <Button variant='contained'>Predict with Linear Regression</Button>
                     </Stack>
 
-                    <Stack direction='column' spacing={2} sx={{ width: 200 }}>
-                        <Typography variant='h5'>Sample Inputs</Typography>
-                        <Button variant='outlined' onClick={() => fillInputs(Yolo)}>Yolo County, CA</Button>
-                        <Button variant='outlined' onClick={() => fillInputs(Augusta)}>Augusta County, VA</Button>
+                    <Stack direction='column' spacing={1} sx={{ width: 200 }}>
+                        <Typography variant='h5' mb={2}>Sample Inputs</Typography>
+                        {sampleInputs.map((sample, i) =>
+                            <Button variant='outlined' key={i} onClick={() => fillInputs(sample)}>{sample.county}</Button>
+                        )}
                     </Stack>
 
                 </Stack>
-
                 :
-                <Stack spacing={5}>
+                <Stack spacing={5} justifyContent='center' alignItems='center'>
                     <Typography variant='h5'>
-                        The model result is {NNResult!.toFixed(2)}% change in GDP
+                        The model predicts that {county} county will have <u>{NNResult!.toFixed(2)}%</u> change in GDP
                     </Typography>
-                    <Button variant='outlined' onClick={() => { setNNResult(null) }}>
+                    <Button variant='outlined' sx={{ width: '60%' }} onClick={() => { setNNResult(null) }}>
                         Reset
                     </Button>
                 </Stack>
