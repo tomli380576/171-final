@@ -3,9 +3,15 @@
 ## Running the full project
 
 ### Backend
+
 There's a file called ```backend.py```  in the root folder.
 
-Run this command in the root folder:
+Install dependencies:
+
+```bash
+pip3 install uvicorn pandas numpy fastapi pydantic
+```
+Then run this command in the root folder:
 ```bash
 python3 backend.py
 ```
