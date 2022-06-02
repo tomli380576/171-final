@@ -1,7 +1,7 @@
 import React from "react";
 import { Stack, Button, TextField, Box, Select, MenuItem, FormControl, InputLabel, Typography } from "@mui/material";
 import { useState } from "react";
-import { ModelInput, getNNPrediction } from './modelAPIs.service';
+import { ModelInput, getNNPrediction, getRegressionPrediction } from './modelAPIs.service';
 import { stateNames } from './stateNames';
 import { sampleInputs } from "./sampleInputs";
 
@@ -14,7 +14,7 @@ export const PredictionPage: React.FC = () => {
     const [deaths, setDeaths] = useState<number>(0);
     const [GDP, setGDP] = useState<number>(0);
 
-    const [NNResult, setNNResult] = useState<number | null>(null);
+    const [result, setResult] = useState<number | null>(null);
 
     function buildModelInput(): ModelInput {
         const result = {
@@ -49,7 +49,7 @@ export const PredictionPage: React.FC = () => {
             alignItems: 'center',
             height: '100vh',
         }}>
-            {NNResult === null ?
+            {result === null ?
                 <Stack direction='row' spacing={10}>
 
                     <Stack direction='column' spacing={2} sx={{ width: 500 }}>
@@ -95,12 +95,18 @@ export const PredictionPage: React.FC = () => {
                         <Button variant='contained' onClick={
                             async () => {
                                 getNNPrediction(buildModelInput()).then(res => {
-                                    setNNResult(res);
+                                    setResult(res);
                                 });
                             }}>
                             Predict with Neural Network
                         </Button>
-                        <Button variant='contained'>Predict with Linear Regression</Button>
+                        <Button variant='contained' onClick={
+                            async () => {
+                                getRegressionPrediction(buildModelInput()).then(res => {
+                                    setResult(res);
+                                });
+                            }
+                        }>Predict with Linear Regression</Button>
                     </Stack>
 
                     <Stack direction='column' spacing={1} sx={{ width: 200 }}>
@@ -114,9 +120,9 @@ export const PredictionPage: React.FC = () => {
                 :
                 <Stack spacing={5} justifyContent='center' alignItems='center'>
                     <Typography variant='h5'>
-                        The model predicts that {county} county will have <u>{NNResult!.toFixed(2)}%</u> change in GDP
+                        The model predicts that {county} county will have <u>{result!.toFixed(2)}%</u> change in GDP
                     </Typography>
-                    <Button variant='outlined' sx={{ width: '60%' }} onClick={() => { setNNResult(null) }}>
+                    <Button variant='outlined' sx={{ width: '60%' }} onClick={() => { setResult(null) }}>
                         Reset
                     </Button>
                 </Stack>

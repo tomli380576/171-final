@@ -37,6 +37,8 @@ state_names: Final = pd.read_csv(
 
 with open("./neural-network/packaged_model.pkl", "rb") as f:
     NNmodel: Final = pickle.load(f)
+with open("./regression-models/linearModel.pkl", "rb") as f:
+    LinearModel: Final = pickle.load(f)
 with open("./neural-network/gdp_scaler.pkl", "rb") as f:
     gdp_scaler: Final = pickle.load(f)
 with open("./neural-network/population_scaler.pkl", "rb") as f:
@@ -81,6 +83,18 @@ def buildInput(data: ModelInputs) -> pd.DataFrame:
     return model_input
 
 
+def buildRegressionInput(data: ModelInputs) -> pd.DataFrame:
+    received = dict(data)
+    del received['state']
+    del received['county']
+    model_input = pd.DataFrame(received, index=[0])
+    model_input.rename(
+        columns={'GDP': '2019 raw GDP', 'population': '2020 population'}, inplace=True)
+    model_input = model_input[['cases',  'deaths',
+                               '2020 population', '2019 raw GDP']]
+    return model_input
+
+
 @app.get('/')
 def index():
     return {'message': 'This is the homepage of the API '}
@@ -96,7 +110,8 @@ def get_nn_prediction(data: ModelInputs):
 
 @app.post('/RegPrediction')
 def get_regression_prediction(data: ModelInputs):
-    model_input = buildInput(data)
+    model_input = buildRegressionInput(data)
+    return float(LinearModel.predict(model_input))
 
 
 if __name__ == '__main__':
