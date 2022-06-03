@@ -37,7 +37,7 @@ state_names: Final = pd.read_csv(
 
 with open("./neural-network/packaged_model.pkl", "rb") as f:
     NNmodel: Final = pickle.load(f)
-with open("./regression-models/linearModel.pkl", "rb") as f:
+with open("./regression-model/linearModel.pkl", "rb") as f:
     LinearModel: Final = pickle.load(f)
 with open("./neural-network/gdp_scaler.pkl", "rb") as f:
     gdp_scaler: Final = pickle.load(f)
@@ -45,6 +45,8 @@ with open("./neural-network/population_scaler.pkl", "rb") as f:
     population_scaler: Final = pickle.load(f)
 with open("./neural-network/y_scaler.pkl", "rb") as f:
     y_scaler: Final = pickle.load(f)
+with open('./regression-model/linearModelScaler.pkl', 'rb') as f:
+    linear_model_scaler: Final = pickle.load(f)
 
 
 def encodeStateName(state_name: str):
@@ -111,7 +113,9 @@ def get_nn_prediction(data: ModelInputs):
 @app.post('/RegPrediction')
 def get_regression_prediction(data: ModelInputs):
     model_input = buildRegressionInput(data)
-    return float(LinearModel.predict(model_input))
+    y = linear_model_scaler.inverse_transform(
+        LinearModel.predict(model_input).reshape(-1, 1))
+    return float(y)
 
 
 if __name__ == '__main__':
