@@ -1,11 +1,10 @@
 # ECS 171 Final Project
 
 ## Running the full project
-
+System Requirements: `Node.js`, `Python 3.6+`
 ### Backend
 
 There's a file called ```backend.py```  in the root folder.
-
 Install dependencies:
 
 ```bash
