@@ -1,4 +1,5 @@
 # ECS 171 Final Project
+**This repository is made public for submission on Saturday June 4th**
 
 ## Running the full project
 System Requirements: `Node.js`, `Python 3.6+`
